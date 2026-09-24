@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-
+    //yeni v-5
     const SERVER_URL = 'http://127.0.0.1:5000';
 
     function FilmCehennemiOnline(component) {
@@ -49,18 +49,14 @@
     }
 
     if (window.Lampa) {
-        // Onlayn mənbələrə əlavə edirik ki, "смотреть" menyusunda çıxsın
-        if (Lampa.Manifest && Lampa.Manifest.plugins) {
-            // Lampa-nın onlayn sisteminə qeydiyyat
-            Lampa.Component.add('filmcehennemi_online', FilmCehennemiOnline);
-            
-            // Onlayn mənbə siyahısına daxil edirik
-            if (window.lampa_settings && lampa_settings.plugins_prepend) {
-                // Avtomatik inteqrasiya
-            }
-        }
+        Lampa.Component.add('filmcehennemi_online', FilmCehennemiOnline);
         
-        // Alternativ olaraq birbaşa online mod kimi tanütmaq
-        console.log('Film İzle HD Online Parser yükləndi');
+        // Onlayn mənbələrə (Balanserlərə) qoşulma
+        if (window.lampa_sources) {
+            window.lampa_sources.filmcehennemi = {
+                title: 'Film İzle HD',
+                component: 'filmcehennemi_online'
+            };
+        }
     }
 })();
