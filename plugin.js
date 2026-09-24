@@ -3,10 +3,10 @@
 
     const SERVER_URL = 'http://127.0.0.1:5000';
 
-    function FilmCehennemiPlugin() {
+    function FilmCehennemiPlugin(object) {
         let network = new Lampa.Reguest();
 
-        this.title = 'Film İzle HD';
+        this.network = network;
 
         this.search = function (params, success, error) {
             network.silent(`${SERVER_URL}/api/search?q=` + encodeURIComponent(params.query), function (data) {
@@ -50,6 +50,13 @@
     }
 
     if (window.Lampa) {
+        // Lampa-nın axtarış mənbələrinə rəsmi olaraq əlavə edirik
         Lampa.Api.sources.filmcehennemi = FilmCehennemiPlugin;
+        
+        // Əgər əsas axtarış menyusuna inteqrasiya olunmalıdırsa:
+        if (Lampa.Search) {
+            // Pluginin adını menyuda göstərmək üçün
+            console.log('Film İzle HD Plugin qeydiyyatdan keçdi');
+        }
     }
 })();
