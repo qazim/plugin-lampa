@@ -1,23 +1,24 @@
 (function () {
     'use strict';
 
-    const SERVER_URL = 'http://192.168.100.3:5000';
+    const SERVER_URL = 'http://127.0.0.1:5000';
 
-    function FilmCehennemiSource(object) {
+    function FilmCehennemiOnline(component) {
         let network = new Lampa.Reguest();
 
-        this.search = function (params, success, error) {
-            network.silent(`${SERVER_URL}/api/search?q=` + encodeURIComponent(params.query), function (data) {
+        this.search = function (object, success, error) {
+            let query = object.movie.title || object.movie.name;
+            
+            network.silent(`${SERVER_URL}/api/search?q=` + encodeURIComponent(query), function (data) {
                 let results = [];
                 if (Array.isArray(data)) {
                     data.forEach(item => {
                         results.push({
                             title: item.title,
-                            vote_average: parseFloat(item.rating) || 0,
-                            release_date: item.year,
+                            year: item.year,
                             img: item.img,
                             url: item.url,
-                            card_type: 'movie'
+                            info: 'Film İzle HD'
                         });
                     });
                 }
@@ -27,41 +28,39 @@
             });
         };
 
-        this.element = function (element, data) {
-            element.on('hover:enter', () => {
-                network.silent(`${SERVER_URL}/api/details?url=` + encodeURIComponent(data.url), function (details) {
-                    if (details && details.streams && details.streams.length > 0) {
-                        let stream = details.streams[0];
-                        let player_element = {
-                            title: details.title,
+        this.card = function (object, success, error) {
+            network.silent(`${SERVER_URL}/api/details?url=` + encodeURIComponent(object.url), function (details) {
+                let folder = [];
+                if (details && details.streams && details.streams.length > 0) {
+                    details.streams.forEach((stream, index) => {
+                        folder.push({
+                            title: `HD - Alternativ ${index + 1}`,
                             url: stream.m3u8_url,
-                            headers: stream.headers || {}
-                        };
-                        Lampa.Player.play(player_element);
-                        Lampa.Player.playlist([player_element]);
-                    } else {
-                        Lampa.Noty.show('İzləmə linki tapılmadı.');
-                    }
-                }, function () {
-                    Lampa.Noty.show('Serverə qoşulmaq olmadı.');
-                });
+                            headers: stream.headers || {},
+                            quality: 'HD'
+                        });
+                    });
+                }
+                success(folder);
+            }, function () {
+                error();
             });
         };
     }
 
     if (window.Lampa) {
-        // API mənbəsi kimi qeydiyyat
-        Lampa.Api.sources.filmcehennemi = FilmCehennemiSource;
-
-        // Axtarış menyusunda seçilə bilən mənbə kimi əlavə edirik
-        if (Lampa.Search && Lampa.Search.sources) {
-            Lampa.Search.sources.filmcehennemi = {
-                title: 'Film İzle HD',
-                search: function (params, success, error) {
-                    let src = new FilmCehennemiSource();
-                    src.search(params, success, error);
-                }
-            };
+        // Onlayn mənbələrə əlavə edirik ki, "смотреть" menyusunda çıxsın
+        if (Lampa.Manifest && Lampa.Manifest.plugins) {
+            // Lampa-nın onlayn sisteminə qeydiyyat
+            Lampa.Component.add('filmcehennemi_online', FilmCehennemiOnline);
+            
+            // Onlayn mənbə siyahısına daxil edirik
+            if (window.lampa_settings && lampa_settings.plugins_prepend) {
+                // Avtomatik inteqrasiya
+            }
         }
+        
+        // Alternativ olaraq birbaşa online mod kimi tanütmaq
+        console.log('Film İzle HD Online Parser yükləndi');
     }
 })();
