@@ -1,12 +1,10 @@
 (function () {
     'use strict';
 
-    const SERVER_URL = 'http://127.0.0.1:5000';
+    const SERVER_URL = 'http://192.168.100.3:5000';
 
-    function FilmCehennemiPlugin(object) {
+    function FilmCehennemiSource(object) {
         let network = new Lampa.Reguest();
-
-        this.network = network;
 
         this.search = function (params, success, error) {
             network.silent(`${SERVER_URL}/api/search?q=` + encodeURIComponent(params.query), function (data) {
@@ -24,7 +22,9 @@
                     });
                 }
                 success(results);
-            }, function () { error(); });
+            }, function () {
+                error();
+            });
         };
 
         this.element = function (element, data) {
@@ -50,13 +50,18 @@
     }
 
     if (window.Lampa) {
-        // Lampa-nın axtarış mənbələrinə rəsmi olaraq əlavə edirik
-        Lampa.Api.sources.filmcehennemi = FilmCehennemiPlugin;
-        
-        // Əgər əsas axtarış menyusuna inteqrasiya olunmalıdırsa:
-        if (Lampa.Search) {
-            // Pluginin adını menyuda göstərmək üçün
-            console.log('Film İzle HD Plugin qeydiyyatdan keçdi');
+        // API mənbəsi kimi qeydiyyat
+        Lampa.Api.sources.filmcehennemi = FilmCehennemiSource;
+
+        // Axtarış menyusunda seçilə bilən mənbə kimi əlavə edirik
+        if (Lampa.Search && Lampa.Search.sources) {
+            Lampa.Search.sources.filmcehennemi = {
+                title: 'Film İzle HD',
+                search: function (params, success, error) {
+                    let src = new FilmCehennemiSource();
+                    src.search(params, success, error);
+                }
+            };
         }
     }
 })();
