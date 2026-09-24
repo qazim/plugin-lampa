@@ -2,7 +2,7 @@
     'use strict';
 
     // Öz serverinizin ünvanını bura yazın (məsələn: http://sizin-ip-veya-domen.com:5000)
-    const SERVER_URL = 'http://192.168.100.3:5000';
+    const SERVER_URL = 'http://127.0.0.1:5000';
 
     function FilmCehennemiPlugin() {
         let network = new Lampa.Reguest();
